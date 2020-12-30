@@ -15,7 +15,7 @@ public class LocacaoService {
 		locacao.setLocatario(locatario);
 		locacao.setCarro(carro);
 		locacao.setDataLocacao(new Date());		
-		locacao.setDataDevolucao(DateUtils.adicionaDias(new Date(), 1));
+		locacao.setDataDevolucao(DateUtils.adicionaDias(new Date(), +2));
 		locacao.setValor(carro.getPrecoLocacao() * DateUtils.calculaDiasEntreDatas(locacao.getDataLocacao(), locacao.getDataDevolucao()));
 		
 		return locacao;
