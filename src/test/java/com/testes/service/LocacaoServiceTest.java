@@ -7,6 +7,10 @@ import static org.junit.Assert.assertEquals;
 import static org.junit.Assert.assertFalse;
 import static org.junit.Assert.assertNotNull;
 import static org.junit.Assert.assertThat;
+import static org.junit.Assert.fail;
+
+import java.util.Arrays;
+import java.util.List;
 
 import org.junit.Rule;
 import org.junit.Test;
@@ -18,9 +22,7 @@ import com.testes.domain.Locacao;
 import com.testes.domain.Pessoa;
 import com.testes.util.DateUtils;
 
-public class LocacaoServiceTest {
-	//TODO REFATORAR O CARRO PARA SER UMA LISTA
-	
+public class LocacaoServiceTest {	
 	@Rule //EM CASOS QUE O METODO NAO CONTEM APENAS UMA ASSERTIVA É ALGO INTERESSANTE
 	public ErrorCollector error = new ErrorCollector();
 	
@@ -32,10 +34,10 @@ public class LocacaoServiceTest {
 		//CENARIO
 		LocacaoService service = new LocacaoService();
 		Pessoa locatario = new Pessoa(1L, "MARIA");
-		Carro carro = new Carro(1L, "ABC1234", 80.0, true);
+		List<Carro> carros = Arrays.asList(new Carro(1L, "ABC1234", 80.0, true));
 		
 		//ACAO
-		Locacao locacao = service.alugarCarro(locatario, carro);
+		Locacao locacao = service.alugarCarro(locatario, carros);
 		
 		//VERIFICACAO
 		assertNotNull(locacao);
@@ -51,10 +53,10 @@ public class LocacaoServiceTest {
 		//CENARIO
 		LocacaoService service = new LocacaoService();
 		Pessoa locatario = new Pessoa(1L, "MARIA");
-		Carro carro = new Carro(1L, "ABC1234", 80.0, true);
+		List<Carro> carros = Arrays.asList(new Carro(1L, "ABC1234", 80.0, true));
 		
 		//ACAO
-		Locacao locacao = service.alugarCarro(locatario, carro);
+		Locacao locacao = service.alugarCarro(locatario, carros);
 		
 		//VERIFICACAO
 		error.checkThat(locacao, is(notNullValue()));
@@ -67,10 +69,10 @@ public class LocacaoServiceTest {
 		//CENARIO
 		LocacaoService service = new LocacaoService();
 		Pessoa locatario = new Pessoa(1L, "MARIA");
-		Carro carro = new Carro(1L, "ABC1234", 80.0, false);
+		List<Carro> carros = Arrays.asList(new Carro(1L, "ABC1234", 80.0, false));
 		
 		//ACAO
-		service.alugarCarro(locatario, carro);
+		service.alugarCarro(locatario, carros);
 	}
 	
 	@Test
@@ -78,11 +80,28 @@ public class LocacaoServiceTest {
 		//CENARIO
 		LocacaoService service = new LocacaoService();
 		Pessoa locatario = new Pessoa(1L, "MARIA");
-		Carro carro = new Carro(1L, "ABC1234", 80.0, false);
+		List<Carro> carros = Arrays.asList(new Carro(1L, "ABC1234", 80.0, false));
 		
 		ee.expect(Exception.class);
 		
 		//ACAO
-		service.alugarCarro(locatario, carro);
+		service.alugarCarro(locatario, carros);
+	}
+	
+	@Test
+	public void testeCarroDisponivelRobusto() {
+		//CENARIO
+		LocacaoService service = new LocacaoService();
+		Pessoa locatario = new Pessoa(1L, "MARIA");
+		List<Carro> carros = Arrays.asList(new Carro(1L, "ABC1234", 80.0, false));
+		
+		//ACAO
+		try {
+			service.alugarCarro(locatario, carros);
+			fail();
+		} catch(Exception e) {
+			error.checkThat(true, is(e instanceof Exception));
+		}
+		
 	}
 }

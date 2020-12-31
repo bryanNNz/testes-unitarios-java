@@ -1,6 +1,7 @@
 package com.testes.domain;
 
 import java.util.Date;
+import java.util.List;
 
 import lombok.Data;
 import lombok.NoArgsConstructor;
@@ -19,7 +20,7 @@ public class Locacao {
 	private Pessoa locatario;
 	
 	@NonNull
-	private Carro carro;
+	private List<Carro> carros;
 	
 	@NonNull
 	private Date dataLocacao;
