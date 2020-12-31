@@ -18,4 +18,7 @@ public class Carro {
 	
 	@NonNull
 	private Double precoLocacao;
+	
+	@NonNull
+	private Boolean disponivel;
 }

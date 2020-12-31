@@ -9,7 +9,11 @@ import com.testes.util.DateUtils;
 
 public class LocacaoService {
 	
-	public Locacao alugarCarro(Pessoa locatario, Carro carro) {
+	public Locacao alugarCarro(Pessoa locatario, Carro carro) throws Exception {
+		
+		if(!carro.getDisponivel())
+			throw new Exception();
+		
 		Locacao locacao = new Locacao();
 		locacao.setId(1L);
 		locacao.setLocatario(locatario);
