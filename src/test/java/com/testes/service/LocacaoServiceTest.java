@@ -10,8 +10,10 @@ import static org.junit.Assert.assertThat;
 import static org.junit.Assert.fail;
 
 import java.util.Arrays;
+import java.util.Calendar;
 import java.util.List;
 
+import org.junit.Assume;
 import org.junit.Rule;
 import org.junit.Test;
 import org.junit.rules.ErrorCollector;
@@ -39,10 +41,13 @@ public class LocacaoServiceTest {
 		//ACAO
 		Locacao locacao = service.alugarCarro(locatario, carros);
 		
+		//ASSUMPTIONS
+		Assume.assumeFalse(DateUtils.isMesmoDiaDaSemana(locacao.getDataDevolucao(), Calendar.SUNDAY));
+		
 		//VERIFICACAO
 		assertNotNull(locacao);
 		assertEquals(160.0, locacao.getValor(), 0.01);
-		assertFalse(DateUtils.isMesmoDia(locacao.getDataLocacao(), locacao.getDataDevolucao()));
+		assertFalse(DateUtils.isMesmoDiaDoMes(locacao.getDataLocacao(), locacao.getDataDevolucao()));
 		
 		//UTILIZADO JUNTO AO CORE MATCHER, FICA BEM LEGIVEL
 		assertThat(locacao.getValor(), is(equalTo(160.0)));
@@ -58,10 +63,13 @@ public class LocacaoServiceTest {
 		//ACAO
 		Locacao locacao = service.alugarCarro(locatario, carros);
 		
+		//ASSUMPTIONS
+		Assume.assumeFalse(DateUtils.isMesmoDiaDaSemana(locacao.getDataDevolucao(), Calendar.SUNDAY));
+		
 		//VERIFICACAO
 		error.checkThat(locacao, is(notNullValue()));
 		error.checkThat(locacao.getValor(), is(equalTo(160.0)));
-		error.checkThat(DateUtils.isMesmoDia(locacao.getDataLocacao(), locacao.getDataDevolucao()), is(false));
+		error.checkThat(DateUtils.isMesmoDiaDoMes(locacao.getDataLocacao(), locacao.getDataDevolucao()), is(false));
 	}
 	
 	@Test(expected = Exception.class)
@@ -102,6 +110,26 @@ public class LocacaoServiceTest {
 		} catch(Exception e) {
 			error.checkThat(true, is(e instanceof Exception));
 		}
+		
+		
+	}
+	
+	@Test
+	public void deveHaverDescontoDe25PctDoTotalQuandoADevolucaoForDomingo() throws Exception {
+		
+		//CENARIO
+		LocacaoService service = new LocacaoService();
+		Pessoa locatario = new Pessoa(1L, "MARIA");
+		List<Carro> carros = Arrays.asList(new Carro(1L, "ABC1234", 80.0, true));
+		
+		//ACAO
+		Locacao locacao = service.alugarCarro(locatario, carros);
+		
+		//ASSUMPTIONS
+		Assume.assumeTrue(DateUtils.isMesmoDiaDaSemana(locacao.getDataDevolucao(), Calendar.SUNDAY));
+
+		//VERIFICACAO
+		assertThat(locacao.getValor(), is(equalTo(120.0)));
 		
 	}
 }

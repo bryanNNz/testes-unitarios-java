@@ -1,5 +1,6 @@
 package com.testes.service;
 
+import java.util.Calendar;
 import java.util.Date;
 import java.util.List;
 
@@ -24,9 +25,13 @@ public class LocacaoService {
 		locacao.setDataLocacao(new Date());		
 		locacao.setDataDevolucao(DateUtils.adicionaDias(new Date(), +2));
 		
-		Double total = 0.0;
+		Double total = 0.0;		
 		for(Carro carro : carros) {
 			total += carro.getPrecoLocacao() * DateUtils.calculaDiasEntreDatas(locacao.getDataLocacao(), locacao.getDataDevolucao());
+		}
+		
+		if(DateUtils.isMesmoDiaDaSemana(locacao.getDataDevolucao(), Calendar.SUNDAY)) {
+			total -= total * 0.25;
 		}
 		
 		locacao.setValor(total);
