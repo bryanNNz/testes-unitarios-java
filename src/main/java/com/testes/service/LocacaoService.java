@@ -4,6 +4,7 @@ import java.util.Calendar;
 import java.util.Date;
 import java.util.List;
 
+import com.testes.dao.LocacaoDAO;
 import com.testes.domain.Carro;
 import com.testes.domain.Locacao;
 import com.testes.domain.Pessoa;
@@ -11,7 +12,15 @@ import com.testes.util.DateUtils;
 
 public class LocacaoService {
 	
+	private LocacaoDAO locacaoDAO;
+	
+	private SerasaService serasaService;
+	
 	public Locacao alugarCarro(Pessoa locatario, List<Carro> carros) throws Exception {
+		
+		if(serasaService.pessoaNegativada(locatario)) {
+			throw new Exception("PESSOA NEGATIVADA");
+		}
 		
 		for(Carro carro : carros) {
 			if(!carro.getDisponivel())
@@ -36,7 +45,17 @@ public class LocacaoService {
 		
 		locacao.setValor(total);
 		
+		locacaoDAO.salvar(locacao);
+		
 		return locacao;
+	}
+	
+	public void setLocacaoDAO(LocacaoDAO dao) {
+		this.locacaoDAO = dao;
+	}
+	
+	public void setSerasaService(SerasaService serasaService) {
+		this.serasaService = serasaService;
 	}
 	
 }

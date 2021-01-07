@@ -14,27 +14,45 @@ import java.util.Calendar;
 import java.util.List;
 
 import org.junit.Assume;
+import org.junit.Before;
 import org.junit.Rule;
 import org.junit.Test;
 import org.junit.rules.ErrorCollector;
 import org.junit.rules.ExpectedException;
+import org.mockito.Mockito;
 
+import com.testes.dao.LocacaoDAO;
 import com.testes.domain.Carro;
 import com.testes.domain.Locacao;
 import com.testes.domain.Pessoa;
 import com.testes.util.DateUtils;
 
-public class LocacaoServiceTest {	
+public class LocacaoServiceTest {
+	
+	private LocacaoService service;
+	
+	private SerasaService serasaService;
+	
+	private LocacaoDAO locacaoDAO;
+	
 	@Rule //EM CASOS QUE O METODO NAO CONTEM APENAS UMA ASSERTIVA É ALGO INTERESSANTE
 	public ErrorCollector error = new ErrorCollector();
 	
 	@Rule
 	public ExpectedException ee = ExpectedException.none();
 	
+	@Before
+	public void init() {
+		serasaService = Mockito.mock(SerasaService.class);
+		locacaoDAO = Mockito.mock(LocacaoDAO.class);
+		service = new LocacaoService();
+		service.setLocacaoDAO(locacaoDAO);
+		service.setSerasaService(serasaService);
+	}
+	
 	@Test
 	public void testeLocacao() throws Exception {
 		//CENARIO
-		LocacaoService service = new LocacaoService();
 		Pessoa locatario = new Pessoa(1L, "MARIA");
 		List<Carro> carros = Arrays.asList(new Carro(1L, "ABC1234", 80.0, true));
 		
@@ -56,7 +74,6 @@ public class LocacaoServiceTest {
 	@Test
 	public void testeLocacaoWithErrorCollector() throws Exception {
 		//CENARIO
-		LocacaoService service = new LocacaoService();
 		Pessoa locatario = new Pessoa(1L, "MARIA");
 		List<Carro> carros = Arrays.asList(new Carro(1L, "ABC1234", 80.0, true));
 		
@@ -75,7 +92,6 @@ public class LocacaoServiceTest {
 	@Test(expected = Exception.class)
 	public void testeCarroDisponivel() throws Exception {
 		//CENARIO
-		LocacaoService service = new LocacaoService();
 		Pessoa locatario = new Pessoa(1L, "MARIA");
 		List<Carro> carros = Arrays.asList(new Carro(1L, "ABC1234", 80.0, false));
 		
@@ -86,7 +102,6 @@ public class LocacaoServiceTest {
 	@Test
 	public void testeCarroDisponivelWithExpectedException() throws Exception {
 		//CENARIO
-		LocacaoService service = new LocacaoService();
 		Pessoa locatario = new Pessoa(1L, "MARIA");
 		List<Carro> carros = Arrays.asList(new Carro(1L, "ABC1234", 80.0, false));
 		
@@ -99,7 +114,6 @@ public class LocacaoServiceTest {
 	@Test
 	public void testeCarroDisponivelRobusto() {
 		//CENARIO
-		LocacaoService service = new LocacaoService();
 		Pessoa locatario = new Pessoa(1L, "MARIA");
 		List<Carro> carros = Arrays.asList(new Carro(1L, "ABC1234", 80.0, false));
 		
@@ -118,7 +132,6 @@ public class LocacaoServiceTest {
 	public void deveHaverDescontoDe25PctDoTotalQuandoADevolucaoForDomingo() throws Exception {
 		
 		//CENARIO
-		LocacaoService service = new LocacaoService();
 		Pessoa locatario = new Pessoa(1L, "MARIA");
 		List<Carro> carros = Arrays.asList(new Carro(1L, "ABC1234", 80.0, true));
 		
@@ -130,6 +143,22 @@ public class LocacaoServiceTest {
 
 		//VERIFICACAO
 		assertThat(locacao.getValor(), is(equalTo(120.0)));
+		
+	}
+	
+	@Test
+	public void deveImpedirLocacaoQuandoLocatarioEstiverNegativoNoSerasa() throws Exception {
+		//CENARIO
+		Pessoa locatario = new Pessoa(1L, "MARIA");
+		List<Carro> carros = Arrays.asList(new Carro(1L, "ABC1234", 80.0, true));
+		
+		ee.expect(Exception.class);
+		ee.expectMessage("PESSOA NEGATIVADA");
+		
+		Mockito.when(serasaService.pessoaNegativada(locatario)).thenReturn(true);
+		
+		//ACAO
+		service.alugarCarro(locatario, carros);
 		
 	}
 }
