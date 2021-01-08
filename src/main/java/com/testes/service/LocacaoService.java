@@ -16,6 +16,8 @@ public class LocacaoService {
 	
 	private SerasaService serasaService;
 	
+	private MailService mailService;
+	
 	public Locacao alugarCarro(Pessoa locatario, List<Carro> carros) throws Exception {
 		
 		if(serasaService.pessoaNegativada(locatario)) {
@@ -50,12 +52,25 @@ public class LocacaoService {
 		return locacao;
 	}
 	
+	public void notificarAtraso() {
+		
+		List<Pessoa> locatarios = locacaoDAO.findLocacoesAtrasadas();
+		
+		for(Pessoa l : locatarios) {
+			mailService.notificarLocatario(l);
+		}
+	}
+	
 	public void setLocacaoDAO(LocacaoDAO dao) {
 		this.locacaoDAO = dao;
 	}
 	
 	public void setSerasaService(SerasaService serasaService) {
 		this.serasaService = serasaService;
+	}
+	
+	public void setMailService(MailService mailService) {
+		this.mailService = mailService;
 	}
 	
 }

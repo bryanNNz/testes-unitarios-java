@@ -35,6 +35,8 @@ public class LocacaoServiceTest {
 	
 	private LocacaoDAO locacaoDAO;
 	
+	private MailService mailService;
+	
 	@Rule //EM CASOS QUE O METODO NAO CONTEM APENAS UMA ASSERTIVA É ALGO INTERESSANTE
 	public ErrorCollector error = new ErrorCollector();
 	
@@ -45,9 +47,11 @@ public class LocacaoServiceTest {
 	public void init() {
 		serasaService = Mockito.mock(SerasaService.class);
 		locacaoDAO = Mockito.mock(LocacaoDAO.class);
+		mailService= Mockito.mock(MailService.class);
 		service = new LocacaoService();
 		service.setLocacaoDAO(locacaoDAO);
 		service.setSerasaService(serasaService);
+		service.setMailService(mailService);
 	}
 	
 	@Test
@@ -159,6 +163,20 @@ public class LocacaoServiceTest {
 		
 		//ACAO
 		service.alugarCarro(locatario, carros);
+		
+	}
+	
+	@Test
+	public void deveEnviarEmailQuandoExistirLocacoesAtrasadas() {
+		//CENARIO
+		Pessoa locatario = new Pessoa(1L, "MARIA");		
+		Mockito.when(locacaoDAO.findLocacoesAtrasadas()).thenReturn(Arrays.asList(locatario));
+		
+		//ACAO
+		service.notificarAtraso();
+		
+		//VERIFICACAO
+		Mockito.verify(mailService).notificarLocatario(locatario);
 		
 	}
 }
