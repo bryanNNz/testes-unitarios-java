@@ -61,6 +61,17 @@ public class LocacaoService {
 		}
 	}
 	
+	public void aplicaDescontoLocacao(Locacao locacao) {
+		Locacao l = new Locacao();
+		l.setId(2L);
+		l.setLocatario(locacao.getLocatario());
+		l.setCarros(locacao.getCarros());
+		l.setDataLocacao(locacao.getDataLocacao());		
+		l.setDataDevolucao(locacao.getDataDevolucao());
+		l.setValor(locacao.getValor() - locacao.getValor() * 0.2);
+		locacaoDAO.salvar(l);
+	}
+	
 	public void setLocacaoDAO(LocacaoDAO dao) {
 		this.locacaoDAO = dao;
 	}

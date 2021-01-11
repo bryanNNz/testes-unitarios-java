@@ -11,6 +11,7 @@ import static org.junit.Assert.fail;
 
 import java.util.Arrays;
 import java.util.Calendar;
+import java.util.Date;
 import java.util.List;
 
 import org.junit.Assume;
@@ -19,6 +20,7 @@ import org.junit.Rule;
 import org.junit.Test;
 import org.junit.rules.ErrorCollector;
 import org.junit.rules.ExpectedException;
+import org.mockito.ArgumentCaptor;
 import org.mockito.InjectMocks;
 import org.mockito.Mock;
 import org.mockito.Mockito;
@@ -171,7 +173,7 @@ public class LocacaoServiceTest {
 	public void deveEnviarEmailQuandoExistirLocacoesAtrasadas() {
 		//CENARIO
 		Pessoa locatario = new Pessoa(1L, "MARIA");
-		Mockito.when(locacaoDAO.findLocacoesAtrasadas()).thenReturn(Arrays.asList(locatario));
+		Mockito.doReturn(Arrays.asList(locatario)).when(locacaoDAO).findLocacoesAtrasadas();
 		
 		//ACAO
 		service.notificarAtraso();
@@ -179,5 +181,26 @@ public class LocacaoServiceTest {
 		//VERIFICACAO
 		Mockito.verify(mailService).notificarLocatario(locatario);
 		
+	}
+	
+	@Test
+	public void deveAplicarDescontoNoTotal() throws Exception {
+		//CENARIO
+		Locacao locacao = new Locacao();
+		locacao.setId(1L);
+		locacao.setLocatario(new Pessoa(1L, "MARIA"));
+		locacao.setCarros(Arrays.asList(new Carro(1L, "ABC1234", 80.0, true)));
+		locacao.setDataLocacao(new Date());		
+		locacao.setDataDevolucao(DateUtils.adicionaDias(new Date(), 2));
+		locacao.setValor(100.0);
+		
+		//ACAO
+		ArgumentCaptor<Locacao> argCaptor = ArgumentCaptor.forClass(Locacao.class);
+		service.aplicaDescontoLocacao(locacao);
+		
+		//VERIFICACAO
+		Mockito.verify(locacaoDAO).salvar(argCaptor.capture());
+		Locacao locacaoCapturada = argCaptor.getValue();
+		assertThat(locacaoCapturada.getValor(), is(equalTo(80.0)));
 	}
 }
