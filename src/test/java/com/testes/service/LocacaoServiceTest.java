@@ -19,7 +19,10 @@ import org.junit.Rule;
 import org.junit.Test;
 import org.junit.rules.ErrorCollector;
 import org.junit.rules.ExpectedException;
+import org.mockito.InjectMocks;
+import org.mockito.Mock;
 import org.mockito.Mockito;
+import org.mockito.MockitoAnnotations;
 
 import com.testes.dao.LocacaoDAO;
 import com.testes.domain.Carro;
@@ -29,12 +32,16 @@ import com.testes.util.DateUtils;
 
 public class LocacaoServiceTest {
 	
+	@InjectMocks
 	private LocacaoService service;
 	
+	@Mock
 	private SerasaService serasaService;
 	
+	@Mock
 	private LocacaoDAO locacaoDAO;
 	
+	@Mock
 	private MailService mailService;
 	
 	@Rule //EM CASOS QUE O METODO NAO CONTEM APENAS UMA ASSERTIVA É ALGO INTERESSANTE
@@ -45,13 +52,7 @@ public class LocacaoServiceTest {
 	
 	@Before
 	public void init() {
-		serasaService = Mockito.mock(SerasaService.class);
-		locacaoDAO = Mockito.mock(LocacaoDAO.class);
-		mailService= Mockito.mock(MailService.class);
-		service = new LocacaoService();
-		service.setLocacaoDAO(locacaoDAO);
-		service.setSerasaService(serasaService);
-		service.setMailService(mailService);
+		MockitoAnnotations.initMocks(this);
 	}
 	
 	@Test
@@ -169,7 +170,7 @@ public class LocacaoServiceTest {
 	@Test
 	public void deveEnviarEmailQuandoExistirLocacoesAtrasadas() {
 		//CENARIO
-		Pessoa locatario = new Pessoa(1L, "MARIA");		
+		Pessoa locatario = new Pessoa(1L, "MARIA");
 		Mockito.when(locacaoDAO.findLocacoesAtrasadas()).thenReturn(Arrays.asList(locatario));
 		
 		//ACAO
